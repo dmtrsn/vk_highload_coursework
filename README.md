@@ -122,6 +122,52 @@ L4-балансировщики распределяют нагрузку на L
 |bookings |561 000 000 | 2.5 KB |1.20 TB |4.24 | 1.2 |
 |offers_meta |1 946 645 00 |0.2 KB  |0.036 TB |56.94 |570 |
 
+## Физическая схема БД
+
+| Таблица |Технология|
+|------------|--------------|
+|users |PostgreSQL (Citus) |
+|search_history |ClickHouse |
+|saved_routes |PostgreSQL (Citus) |
+|bookings |PostgreSQL (Citus) |
+|offers_meta |ClickHouse |
+
+### Индексы
+CREATE INDEX idx_users_email ON users(email); — поиск пользователя по email при аутентификации.
+
+CREATE INDEX idx_bookings_user_status ON bookings(user_id, status); — выборка бронирований пользователя.
+
+CREATE INDEX idx_bookings_created ON bookings(created_at); — выборка бронирований по дате.
+
+CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка избранных маршрутов.
+
+### Шардирование
+
+| Таблица |Подход|
+|------------|--------------|
+|users |Шардирование по user_id (Citus hash)|
+|search_history |Шардирование по дате (ClickHouse) |
+|saved_routes |Коллокация с users по user_id (Citus colocated)  |
+|bookings |Коллокация с users по user_id (Citus colocated) |
+|offers_meta |Шардирование по дате (ClickHouse) |
+
+### Резервирование
+
+| Таблица |Подход|
+|------------|--------------|
+|users |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
+|search_history |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
+|saved_routes |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
+|bookings |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
+|offers_meta |ReplicatedMergeTree (2 реплики на шард) |
+
+### Резервное копирование
+
+| База данных |Резервное копирование|
+|------------|--------------|
+|PostgreSQL |backup 1×/день + WAL каждые ≤15 мин|
+|ClickHouse |backup 1×/день|
+
 #### Статистика:
 - MAU - 19.5 млн человек;
 - Среднее количество страниц за посещение - 4.84;
