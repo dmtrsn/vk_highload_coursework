@@ -137,8 +137,6 @@ CREATE INDEX idx_users_email ON users(email); — поиск пользоват�
 
 CREATE INDEX idx_bookings_user_status ON bookings(user_id, status); — выборка бронирований пользователя.
 
-CREATE INDEX idx_bookings_created ON bookings(created_at); — выборка бронирований по дате.
-
 CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка избранных маршрутов.
 
 ### Шардирование
