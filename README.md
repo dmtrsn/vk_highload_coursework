@@ -128,6 +128,18 @@ L4-балансировщики распределяют нагрузку на L
 |bookings |PostgreSQL (Citus) |
 |offers_meta |ClickHouse |
 
+|countries |PostgreSQL (Citus) | 
+|cities |PostgreSQL (Citus) | 
+|airports |PostgreSQL (Citus) | 
+|airlines |PostgreSQL (Citus) | 
+|saved_routes |PostgreSQL (Citus) | 
+|route_points |PostgreSQL (Citus) | 
+|search_history |ClickHouse | 
+|search_results_cache |Redis | 
+|bookings |PostgreSQL (Citus) | 
+|booking_segments |PostgreSQL (Citus) | 
+|flights |PostgreSQL (Citus) | 
+
 ### Индексы
 CREATE INDEX idx_users_email ON users(email); — поиск пользователя по email при аутентификации.
 
