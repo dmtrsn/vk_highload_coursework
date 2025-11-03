@@ -138,9 +138,24 @@ L4-балансировщики распределяют нагрузку на L
 ### Индексы
 CREATE INDEX idx_users_email_lower ON users (lower(email)); — поиск пользователя по email при аутентификации.
 
-CREATE INDEX idx_bookings_user_status_created ON bookings (user_id, status); — выборка бронирований пользователя.
+CREATE INDEX idx_cities_country_id ON cities (country_id); — ускорение фильтрации по стране.
 
-CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка избранных маршрутов.
+CREATE INDEX idx_airports_city_id ON airports (city_id); — ускорение фильтрации по городам.
+
+CREATE INDEX idx_airports_name_tsv ON airports USING GIN (name_tsv); — ускорение поиска.
+
+CREATE INDEX idx_airports_icao ON airports (icao) WHERE icao IS NOT NULL — ускорение поиска.
+
+CREATE INDEX idx_saved_routes_user_updated ON saved_routes (user_id, updated_at DESC); 
+
+CREATE INDEX idx_route_points_saved_route_id ON route_points (saved_route_id); — быстрая загрузка всех точек маршрута.
+
+CREATE INDEX idx_bookings_user_id_status_active ON bookings (user_id) WHERE status IN ('confirmed', 'paid', 'processing'); — быстрая загрузка бронирований.
+
+CREATE INDEX idx_booking_segments_airline_id ON booking_segments (airline_id); — быстрая загрузка всех точек маршрута.
+
+CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHERE is_hot = true; — поиск "горящих" предложений.
+
 
 ### Шардирование
 
