@@ -136,9 +136,9 @@ L4-балансировщики распределяют нагрузку на L
 |flights |PostgreSQL (Citus) | 
 
 ### Индексы
-CREATE INDEX idx_users_email ON users(email); — поиск пользователя по email при аутентификации.
+CREATE INDEX idx_users_email_lower ON users (lower(email)); — поиск пользователя по email при аутентификации.
 
-CREATE INDEX idx_bookings_user_status ON bookings(user_id, status); — выборка бронирований пользователя.
+CREATE INDEX idx_bookings_user_status_created ON bookings (user_id, status); — выборка бронирований пользователя.
 
 CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка избранных маршрутов.
 
@@ -162,23 +162,17 @@ CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка 
 
 | Таблица |Подход|
 |------------|--------------|
-|users |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
+|users |Master-Slave (1 синхронная и 1 асинхронная)|
+|countries |Master-Slave (1 синхронная и 1 асинхронная) | 
+|cities |Master-Slave (1 синхронная и 1 асинхронная) | 
+|airports |Master-Slave (1 синхронная и 1 асинхронная) | 
+|airlines |Master-Slave (1 синхронная и 1 асинхронная) | 
+|saved_routes |Master-Slave (1 синхронная и 1 асинхронная)| 
+|route_points |Master-Slave (1 синхронная и 1 асинхронная)| 
 |search_history |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
-|saved_routes |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
-|bookings |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
-|offers_meta |ReplicatedMergeTree (2 реплики на шард) |
-
-|users |Hash-шард по user_id (Citus hash)|
-|countries |Реплицировать на все ноды | 
-|cities |Реплицировать на все ноды | 
-|airports |Реплицировать на все ноды | 
-|airlines |Реплицировать на все ноды | 
-|saved_routes |Коллокация с users по user_id (Citus colocated)| 
-|route_points |Коллокация с saved_routes по saved_routes_id (Citus colocated)| 
-|search_history |Шардирование по дате (ClickHouse) |
-|bookings |Коллокация с users по user_id | 
-|booking_segments |Коллокация с bookings по bookings_id | 
-|flights |Реплицировать на все ноды | 
+|bookings |Synchronous replication (1 реплика)| 
+|booking_segments |Synchronous replication (1 реплика) | 
+|flights |Master-Slave (1 синхронная и 1 асинхронная) | 
 
 ### Резервное копирование
 
