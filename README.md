@@ -123,11 +123,6 @@ L4-балансировщики распределяют нагрузку на L
 | Таблица |Технология|
 |------------|--------------|
 |users |PostgreSQL (Citus) |
-|search_history |ClickHouse |
-|saved_routes |PostgreSQL (Citus) |
-|bookings |PostgreSQL (Citus) |
-|offers_meta |ClickHouse |
-
 |countries |PostgreSQL (Citus) | 
 |cities |PostgreSQL (Citus) | 
 |airports |PostgreSQL (Citus) | 
@@ -151,11 +146,17 @@ CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка 
 
 | Таблица |Подход|
 |------------|--------------|
-|users |Шардирование по user_id (Citus hash)|
+|users |Hash-шард по user_id (Citus hash)|
+|countries |Реплицировать на все ноды | 
+|cities |Реплицировать на все ноды | 
+|airports |Реплицировать на все ноды | 
+|airlines |Реплицировать на все ноды | 
+|saved_routes |Коллокация с users по user_id (Citus colocated)| 
+|route_points |Коллокация с saved_routes по saved_routes_id (Citus colocated)| 
 |search_history |Шардирование по дате (ClickHouse) |
-|saved_routes |Коллокация с users по user_id (Citus colocated)  |
-|bookings |Коллокация с users по user_id (Citus colocated) |
-|offers_meta |Шардирование по дате (ClickHouse) |
+|bookings |Коллокация с users по user_id | 
+|booking_segments |Коллокация с bookings по bookings_id | 
+|flights |Реплицировать на все ноды | 
 
 ### Резервирование
 
@@ -166,6 +167,18 @@ CREATE INDEX idx_saved_routes_user ON saved_routes(user_id); — выборка 
 |saved_routes |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
 |bookings |Master-Slave (2 реплики, 1 синхронная и 1 асинхронная)|
 |offers_meta |ReplicatedMergeTree (2 реплики на шард) |
+
+|users |Hash-шард по user_id (Citus hash)|
+|countries |Реплицировать на все ноды | 
+|cities |Реплицировать на все ноды | 
+|airports |Реплицировать на все ноды | 
+|airlines |Реплицировать на все ноды | 
+|saved_routes |Коллокация с users по user_id (Citus colocated)| 
+|route_points |Коллокация с saved_routes по saved_routes_id (Citus colocated)| 
+|search_history |Шардирование по дате (ClickHouse) |
+|bookings |Коллокация с users по user_id | 
+|booking_segments |Коллокация с bookings по bookings_id | 
+|flights |Реплицировать на все ноды | 
 
 ### Резервное копирование
 
