@@ -225,6 +225,13 @@ CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHE
 ## Схема проекта
 ![Схема проекта](schema.jpg)
 
+## Обеспечение надёжности
+|Компонент|Способ обеспечения надежности|
+|------------|--------------|
+|Nginx|Разворачиваем в двух экземплярах по схеме Active-Passive. Один узел работает как основной и принимает весь трафик, второй — резервный. Если активный инстанс выходит из строя, резервный автоматически продолжает обслуживать запросы|
+|PostgreSQL (Citus)|users, countries, cities, airports, airlines, saved_routes, route_points и flights: Master-Slave (1 синхронная и 1 асинхронная).bookings и booking_segments: Synchronous replication (1 реплика) |
+
+
 #### Статистика:
 - MAU - 19.5 млн человек;
 - Среднее количество страниц за посещение - 4.84;
