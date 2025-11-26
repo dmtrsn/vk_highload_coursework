@@ -229,7 +229,7 @@ CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHE
 |Компонент|Способ обеспечения надежности|
 |------------|--------------|
 |Nginx|Разворачиваем в двух экземплярах по схеме Active-Passive. Один узел работает как основной и принимает весь трафик, второй — резервный. Если активный инстанс выходит из строя, резервный автоматически продолжает обслуживать запросы|
-|PostgreSQL (Citus)|Таблицы users, countries, cities, airports, airlines, saved_routes, route_points и flights: Master-Slave (1 синхронная и 1 асинхронная); bookings и booking_segments: Synchronous replication (1 реплика). \n  Graceful shutdown: \n 1)Перестаем принимать новый трафик \n 2) Завершаем текущие запросы \n 3) Завершаем работу PostgreSQL (Citus) |
+|PostgreSQL (Citus)|Таблицы users, countries, cities, airports, airlines, saved_routes, route_points и flights: Master-Slave (1 синхронная и 1 асинхронная); bookings и booking_segments: Synchronous replication (1 реплика). \  Graceful shutdown: \ 1)Перестаем принимать новый трафик \ 2) Завершаем текущие запросы \ 3) Завершаем работу PostgreSQL (Citus) |
 |Redis|Схема резервирования: Master-Slave (одна асинхронная реплика) |
 
 
