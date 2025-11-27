@@ -259,13 +259,14 @@ CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHE
 
 |Нода|Конфигурация|Количество|CPU|Стоимость (руб/мес)|
 |------------|--------------|--------------|--------------|--------------|
-|PostgreSQL|1×6338/4×16Gb/2×NVMe 3Tb|3|16|2 280 00|
-|Redis|1×6338/2×16Gb/NVMe 512 Gb|2|8|400 000|
-|ClickHouse|1×6338/4×16Gb/2×NVMe 3Tb|3|16|1 440 000|
-|Kafka|1×6338/2×16Gb/2×NVMe 2Tb|3|8|840 000|
-|S3|1×6338/2×16Gb/2×NVMe 512Gb|2|8|360 000|
-|Go services (кроме Search Service)|1×6338/2×8Gb/1×NVMe 512Gb|2|4|160 000|
-|Search Service|1×6338/4×16Gb/1×NVMe 512Gb|2|20|960 000|
+|PostgreSQL|1×6338/4×16Gb/2×NVMe 3Tb|3|16|570 000|
+|Redis|1×6338/2×16Gb/NVMe 512 Gb|2|8|100 000|
+|ClickHouse|1×6338/4×16Gb/2×NVMe 3Tb|3|16|360 000|
+|Kafka|1×6338/2×16Gb/2×NVMe 2Tb|3|8|210 000|
+|S3|1×6338/2×16Gb/2×NVMe 512Gb|2|8|90 000|
+|Go services (кроме Search Service)|1×6338/2×8Gb/1×NVMe 512Gb|2|4|45 000|
+|Search Service|1×6338/4×16Gb/1×NVMe 512Gb|2|20|275 000|
+|Nginx|1×6338/2×8Gb/1×NVMe 512Gb|2|4|45 000|
 
 #### Статистика:
 - MAU - 19.5 млн человек;
