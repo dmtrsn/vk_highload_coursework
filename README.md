@@ -112,11 +112,14 @@ L4-балансировщики распределяют нагрузку на L
 |airlines |Таблица авиакомпаний | 
 |saved_routes |Таблица сохраненных маршрутов | 
 |route_points |Таблица точек маршрута | 
-|search_history |Таблица истории поиска | 
+|search_queries |Таблица запросов | 
+|itineraries |Таблица маршрутов | 
+|itinerary_legs |Таблица точек маршрута | 
+|leg_segments |Таблица рейсов | 
+|offers|Таблица билетов|
 |search_results_cache |Таблица кэша результатов поиска | 
 |bookings |Таблица бронирований | 
 |booking_segments |Таблица сегмента бранирования | 
-|flights |Таблица рейсов | 
 
 ## Физическая схема БД
 
@@ -129,11 +132,14 @@ L4-балансировщики распределяют нагрузку на L
 |airlines |PostgreSQL (Citus) | 
 |saved_routes |PostgreSQL (Citus) | 
 |route_points |PostgreSQL (Citus) | 
-|search_history |ClickHouse | 
+|search_queries |ClickHouse | 
+|itineraries |ClickHouse | 
+|itinerary_legs |ClickHouse | 
+|leg_segments |ClickHouse | 
+|offers|ClickHouse|
 |search_results_cache |Redis | 
 |bookings |PostgreSQL (Citus) | 
-|booking_segments |PostgreSQL (Citus) | 
-|flights |PostgreSQL (Citus) | 
+|booking_segments |PostgreSQL (Citus) |
 
 ### Индексы
 CREATE INDEX idx_users_email_lower ON users (lower(email)); — поиск пользователя по email при аутентификации.
@@ -142,19 +148,15 @@ CREATE INDEX idx_cities_country_id ON cities (country_id); — ускорени�
 
 CREATE INDEX idx_airports_city_id ON airports (city_id); — ускорение фильтрации по городам.
 
-CREATE INDEX idx_airports_name_tsv ON airports USING GIN (name_tsv); — ускорение поиска.
+CREATE INDEX idx_cities_name_lower_btree ON cities ((lower(name))); — ускорение поиска города по названию.
 
-CREATE INDEX idx_airports_icao ON airports (icao) WHERE icao IS NOT NULL — ускорение поиска.
+CREATE INDEX idx_airports_name_tsv ON airports USING GIN (name_tsv); — ускорение поиска.
 
 CREATE INDEX idx_saved_routes_user_updated ON saved_routes (user_id, updated_at DESC); 
 
 CREATE INDEX idx_route_points_saved_route_id ON route_points (saved_route_id); — быстрая загрузка всех точек маршрута.
 
 CREATE INDEX idx_bookings_user_id_status_active ON bookings (user_id) WHERE status IN ('confirmed', 'paid', 'processing'); — быстрая загрузка бронирований.
-
-CREATE INDEX idx_booking_segments_airline_id ON booking_segments (airline_id); — быстрая загрузка всех точек маршрута.
-
-CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHERE is_hot = true; — поиск "горящих" предложений.
 
 
 ### Шардирование
@@ -168,10 +170,13 @@ CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHE
 |airlines |Реплицировать на все ноды | 
 |saved_routes |Коллокация с users по user_id (Citus colocated)| 
 |route_points |Коллокация с saved_routes по saved_routes_id (Citus colocated)| 
-|search_history |Шардирование по дате (ClickHouse) |
+|search_queries |Шардирование по query_hash| 
+|itineraries |Шардирование по query_hash | 
+|itinerary_legs |Шардирование по query_hash | 
+|leg_segments |Шардирование по query_hash | 
+|offers|Шардирование по query_hash|
 |bookings |Коллокация с users по user_id | 
 |booking_segments |Коллокация с bookings по bookings_id | 
-|flights |Реплицировать на все ноды | 
 
 ### Резервирование
 
@@ -185,9 +190,13 @@ CREATE INDEX idx_flights_is_hot_created ON flights (is_hot, created_at DESC) WHE
 |saved_routes |Master-Slave (1 синхронная и 1 асинхронная)| 
 |route_points |Master-Slave (1 синхронная и 1 асинхронная)| 
 |search_history |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
+|search_queries |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
+|itineraries |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
+|itinerary_legs |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
+|leg_segments |ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
+|offers|ReplicatedMergeTree (2 реплики на шард, ClickHouse)|
 |bookings |Synchronous replication (1 реплика)| 
 |booking_segments |Synchronous replication (1 реплика) | 
-|flights |Master-Slave (1 синхронная и 1 асинхронная) | 
 
 ### Резервное копирование
 
